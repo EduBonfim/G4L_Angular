@@ -1,0 +1,338 @@
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="fs-2 fw-bold">Minha Área</h1>
+  </div>
+
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fs-4 fw-bold">Minhas Informações</h2>
+        <button (click)="toggleEdit()" class="btn" [ngClass]="isEditing ? 'btn-secondary' : 'btn-primary'">
+          <i class="fas" [ngClass]="isEditing ? 'fa-times me-2' : 'fa-edit me-2'"></i>
+          {{ isEditing ? 'Cancelar' : 'Editar' }}
+        </button>
+      </div>
+
+      <div *ngIf="!isEditing && currentUser" class="row g-3">
+        <div class="col-md-6">
+          <p class="text-muted mb-1">Nome</p>
+          <p class="fw-bold fs-5">{{ currentUser.name }}</p>
+        </div>
+        <div class="col-md-6">
+          <p class="text-muted mb-1">CPF</p>
+          <p class="fw-bold fs-5">{{ currentUser.cpf }}</p>
+        </div>
+        <div class="col-md-6">
+          <p class="text-muted mb-1">Usuário</p>
+          <p class="fw-bold fs-5">{{ currentUser.username || '-' }}</p>
+        </div>
+        <div class="col-md-6">
+          <p class="text-muted mb-1">Email</p>
+          <p class="fw-bold fs-5">{{ currentUser.email }}</p>
+        </div>
+        <div class="col-md-6">
+          <p class="text-muted mb-1">Telefone</p>
+          <p class="fw-bold fs-5">{{ currentUser.phone }}</p>
+        </div>
+      </div>
+
+      <form *ngIf="isEditing" [formGroup]="editForm" class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label fw-medium" for="edit-name">Nome</label>
+          <input type="text" id="edit-name" formControlName="name" class="form-control">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-medium" for="edit-cpf-disabled">CPF</label>
+          <input type="text" id="edit-cpf-disabled" class="form-control" [value]="currentUser?.cpf" disabled>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-medium" for="edit-user-disabled">Usuário</label>
+          <input type="text" id="edit-user-disabled" class="form-control" [value]="currentUser?.username || '-'" disabled>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-medium" for="edit-email">Email</label>
+          <input type="email" id="edit-email" formControlName="email" class="form-control">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-medium" for="edit-phone">Telefone</label>
+          <input type="tel" id="edit-phone" formControlName="phone" class="form-control">
+        </div>
+        <div class="col-12">
+          <button type="button" (click)="saveChanges()" class="btn btn-success w-100 py-2 fw-bold">
+            <i class="fas fa-save me-2"></i> Salvar Alterações
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fs-4 fw-bold">Meu Endereço</h2>
+        <small class="text-muted">máx. 2 endereços</small>
+      </div>
+
+      <div *ngIf="addresses.length === 0" class="text-muted">Você ainda não cadastrou um endereço.</div>
+      <div class="list-group mb-3" *ngIf="addresses.length > 0">
+        <div class="list-group-item bg-light rounded d-flex justify-content-between align-items-start mb-2" *ngFor="let a of addresses; index as i">
+          <div class="me-3">
+            <div class="fw-bold">{{ a.type }} — {{ a.address }}, {{ a.number }} <span *ngIf="a.isDefault || a.default" class="badge text-bg-success ms-2">Padrão</span></div>
+            <div class="text-muted small">{{ a.district }} • {{ a.city }} / {{ a.uf }} • CEP {{ a.cep }}</div>
+            <div class="text-muted small" *ngIf="a.reference">Ref.: {{ a.reference }}</div>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-sm btn-outline-secondary" type="button" (click)="editAddress(a)"><i class="fas fa-edit me-1"></i>Editar</button>
+            <button class="btn btn-sm btn-outline-danger" type="button" (click)="removeAddress(a)"><i class="fas fa-trash me-1"></i>Remover</button>
+          </div>
+        </div>
+      </div>
+
+      <form [formGroup]="addressForm" (ngSubmit)="addOrUpdateAddress()">
+        <div class="row g-3">
+          <div class="col-12 col-md-8">
+            <label class="form-label fw-medium" for="addr-street">Logradouro</label>
+            <input type="text" id="addr-street" class="form-control" formControlName="address" placeholder="Rua, avenida, etc">
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label fw-medium" for="addr-number">Número</label>
+            <input type="text" id="addr-number" class="form-control" formControlName="number" placeholder="123">
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-medium" for="addr-district">Bairro</label>
+            <input type="text" id="addr-district" class="form-control" formControlName="district" placeholder="Seu bairro">
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-medium" for="addr-cep">CEP</label>
+            <div class="input-group">
+              <input type="text" id="addr-cep" class="form-control" formControlName="cep" placeholder="00000-000" (input)="onCepInput($event)">
+              <span class="input-group-text" *ngIf="cepLookupLoading"><i class="fas fa-spinner fa-spin"></i></span>
+            </div>
+            <div class="invalid-feedback d-block" *ngIf="addressForm.get('cep')?.touched && addressForm.get('cep')?.errors">
+              <span *ngIf="addressForm.get('cep')?.errors?.['required']">CEP é obrigatório.</span>
+              <span *ngIf="addressForm.get('cep')?.errors?.['cepInvalid']">CEP inválido.</span>
+            </div>
+            <div class="text-warning small mt-1" *ngIf="cepLookupError">{{ cepLookupError }}</div>
+          </div>
+          <div class="col-12 col-md-8">
+            <label class="form-label fw-medium" for="addr-city">Cidade</label>
+            <input type="text" id="addr-city" class="form-control" formControlName="city" placeholder="Sua cidade">
+            <div class="invalid-feedback d-block" *ngIf="addressForm.get('city')?.touched && addressForm.get('city')?.hasError('required')">Cidade é obrigatória.</div>
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label fw-medium" for="addr-uf">UF</label>
+            <input type="text" id="addr-uf" class="form-control" formControlName="uf" placeholder="UF" maxlength="2" (input)="addressForm.patchValue({ uf: (addressForm.get('uf')?.value || '').toUpperCase() }, { emitEvent: false })">
+            <div class="invalid-feedback d-block" *ngIf="addressForm.get('uf')?.touched && addressForm.get('uf')?.hasError('required')">UF é obrigatória.</div>
+            <div class="invalid-feedback d-block" *ngIf="addressForm.get('uf')?.touched && (addressForm.get('uf')?.hasError('minlength') || addressForm.get('uf')?.hasError('maxlength'))">UF deve ter 2 letras.</div>
+          </div>
+          <div class="col-12">
+            <div class="form-check mt-1">
+              <input class="form-check-input" type="checkbox" formControlName="isDefault" id="isDefaultAddr">
+              <label class="form-check-label" for="isDefaultAddr">
+                Tornar este o endereço padrão
+              </label>
+            </div>
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-medium" for="addr-reference">Ponto de referência</label>
+            <input type="text" id="addr-reference" maxlength="100" class="form-control" formControlName="reference" placeholder="Até 100 caracteres">
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-medium" for="addr-type">Tipo de endereço</label>
+            <select class="form-select" id="addr-type" formControlName="type">
+              <option>Casa</option>
+              <option>Trabalho</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <button class="btn btn-primary w-100 py-2 fw-bold" type="submit">
+              <i class="fas fa-save me-2"></i>{{ editingAddressIndex !== null ? 'Atualizar endereço' : 'Salvar endereço' }}
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 mb-4" *ngIf="currentUser && currentUser.username !== 'admin'">
+    <div class="card-body p-4">
+      <h2 class="fs-4 fw-bold mb-3">Alterar Senha</h2>
+      <form [formGroup]="passwordForm" class="password-form">
+        <div class="row g-3 align-items-start">
+          <div class="col-md-4">
+            <label class="form-label fw-medium" for="current-pass">Senha atual</label>
+            <div class="position-relative">
+              <input [type]="showCurrentPassword ? 'text' : 'password'" id="current-pass" formControlName="currentPassword" class="form-control" placeholder="Digite sua senha atual" style="padding-right: 2.8rem;">
+              <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y" (click)="showCurrentPassword = !showCurrentPassword" style="padding: 0.375rem 0.75rem; text-decoration: none; color: #6c757d;">
+                <i class="fas" [ngClass]="showCurrentPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+              </button>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-medium" for="new-pass">Nova senha</label>
+            <div class="position-relative">
+              <input [type]="showNewPassword ? 'text' : 'password'" id="new-pass" formControlName="newPassword" class="form-control" placeholder="Digite a nova senha"
+                     (input)="onPasswordInput($event)"
+                     style="padding-right: 2.8rem;"
+                     [ngClass]="{'is-invalid': passwordForm.get('newPassword')?.invalid && (passwordForm.get('newPassword')?.dirty || passwordForm.get('newPassword')?.touched)}">
+              <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y" (click)="showNewPassword = !showNewPassword" style="padding: 0.375rem 0.75rem; text-decoration: none; color: #6c757d; z-index: 10;">
+                <i class="fas" [ngClass]="showNewPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+              </button>
+            </div>
+          </div>
+          <div class="col-md-4 req-balao" *ngIf="passwordForm.get('newPassword')?.touched || newPasswordValue.length > 0">
+            <div class="p-3 bg-white border rounded shadow-sm">
+              <small class="d-flex align-items-center gap-2 mb-1" 
+                     [ngClass]="hasMinLength ? 'text-success' : 'text-muted'">
+                <i class="fas" [ngClass]="hasMinLength ? 'fa-check-circle' : 'fa-circle'"></i>
+                Mínimo 6 caracteres
+              </small>
+              <small class="d-flex align-items-center gap-2 mb-1" 
+                     [ngClass]="hasUpperCase ? 'text-success' : 'text-muted'">
+                <i class="fas" [ngClass]="hasUpperCase ? 'fa-check-circle' : 'fa-circle'"></i>
+                1 letra maiúscula
+              </small>
+              <small class="d-flex align-items-center gap-2 mb-1" 
+                     [ngClass]="hasNumber ? 'text-success' : 'text-muted'">
+                <i class="fas" [ngClass]="hasNumber ? 'fa-check-circle' : 'fa-circle'"></i>
+                1 número
+              </small>
+              <small class="d-flex align-items-center gap-2 mb-1" 
+                     [ngClass]="hasSpecialChar ? 'text-success' : 'text-muted'">
+                <i class="fas" [ngClass]="hasSpecialChar ? 'fa-check-circle' : 'fa-circle'"></i>
+                1 caractere especial
+              </small>
+            </div>
+          </div>
+        </div>
+        <div class="row g-3 mt-2">
+          <div class="col-12">
+            <button type="button" (click)="changePassword()" class="btn btn-primary w-100 py-2 fw-bold" [disabled]="passwordForm.invalid">
+              <i class="fas fa-key me-2"></i> Atualizar Senha
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-4">
+      <h2 class="fs-4 fw-bold mb-4">Seu Histórico de Aluguéis</h2>
+      
+      <div *ngIf="userRentals.length === 0" class="text-center text-muted p-4">
+        <p>Você ainda não realizou nenhum aluguel.</p>
+      </div>
+
+      <div *ngIf="userRentals.length > 0" class="list-group">
+        <div *ngFor="let rental of paginatedRentals" class="list-group-item bg-light mb-3 rounded p-4">
+          <div class="row mb-3 align-items-start">
+            <div class="col-12 col-md-2">
+              <p class="text-muted small mb-1">Console</p>
+              <p class="fw-bold">{{ getConsoleName(rental.consoleId) }}</p>
+            </div>
+            <div class="col-12 col-md-2">
+              <p class="text-muted small mb-1">Plano</p>
+              <p class="fw-bold">{{ rental.plan }}</p>
+            </div>
+            <div class="col-12 col-md-2">
+              <p class="text-muted small mb-1">Data e Hora</p>
+              <p class="fw-bold">{{ rental.orderDate | date: 'dd/MM/yyyy HH:mm' }}</p>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="d-flex gap-4 justify-content-end totals-row">
+                <div class="totals-item">
+                  <p class="text-muted small mb-1">Total</p>
+                  <p class="fw-bold text-success mb-0">{{ rental.totalPrice | currency:'BRL' }}</p>
+                </div>
+                <div class="totals-item text-end">
+                  <p class="text-muted small mb-1">Extensões (valor)</p>
+                  <p class="fw-bold mb-0" [ngClass]="rental.pendingExtensionAmount ? 'text-danger' : 'text-success'">
+                    {{ (rental.pendingExtensionAmount || 0) | currency:'BRL' }}
+                  </p>
+                  <small [ngClass]="rental.pendingExtensionStatus === 'pendente' ? 'text-danger' : 'text-success'">
+                    {{ rental.pendingExtensionStatus === 'pendente' ? 'pendente' : 'pago' }}
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mb-2">
+            <div class="col-md-4">
+              <p class="text-muted small mb-1">Expiração</p>
+              <p class="small" *ngIf="rental.endDate">{{ rental.endDate | date:'dd/MM/yyyy HH:mm' }}</p>
+              <p class="small" *ngIf="!rental.endDate">—</p>
+            </div>
+            <div class="col-md-4">
+              <p class="text-muted small mb-1">Tempo Restante</p>
+              <ng-container *ngIf="!getRemainingParts(rental).expired; else uaExpiredTpl">
+                <div class="time-indicator" [ngClass]="getRemainingParts(rental).critical ? 'time-critical' : 'time-normal'">
+                  <span>{{ getRemainingParts(rental).years }} anos</span>
+                  <span class="mx-1">•</span>
+                  <span>{{ getRemainingParts(rental).months }} meses</span>
+                  <span class="mx-1">•</span>
+                  <span>{{ getRemainingParts(rental).days }} dias</span>
+                </div>
+              </ng-container>
+              <ng-template #uaExpiredTpl>
+                <div class="time-indicator time-critical">{{ getRemainingLabel(rental) }}</div>
+              </ng-template>
+            </div>
+            <div class="col-md-4" *ngIf="getRemainingLabel(rental).startsWith('Restam')">
+              <p class="text-muted small mb-1">Estender Plano</p>
+              <div class="d-flex gap-2 align-items-center">
+                <select class="form-select form-select-sm" style="max-width:140px;"
+                         [(ngModel)]="selectedPlan[rental.id]" name="planSel_{{rental.id}}">
+                  <option [ngValue]="'Semanal'">Semana</option>
+                  <option [ngValue]="'Mensal'">Mês</option>
+                  <option [ngValue]="'Anual'">Ano</option>
+                </select>
+                <select class="form-select form-select-sm" style="max-width:100px;"
+                         [(ngModel)]="selectedMult[rental.id]" name="multSel_{{rental.id}}">
+                  <option [ngValue]="1">+1x</option>
+                  <option [ngValue]="2">+2x</option>
+                  <option [ngValue]="3">+3x</option>
+                </select>
+                <button type="button" class="btn btn-sm btn-outline-primary"[disabled]="wouldExceedMax(rental)"(click)="extendUserRental(rental)">Estender</button>
+              </div>
+              <small class="text-muted d-block mt-1">Custo adicional: {{ additionalCost(rental) | currency:'BRL' }}</small>
+              <small class="text-danger d-block mt-1" *ngIf="wouldExceedMax(rental)">Limite máximo de 3 anos atingido.</small>
+              <div class="alert alert-info py-2 px-3 mt-2" *ngIf="extendNotice[rental.id]">
+                {{ extendNotice[rental.id] }}
+              </div>
+            </div>
+          </div>
+
+          <hr class="my-3">
+
+          <div class="row">
+            <div class="col-md-4">
+              <p class="text-muted small mb-1">Jogos</p>
+              <p class="small">{{ getGameNames(rental.gameIds) }}</p>
+            </div>
+            <div class="col-md-4">
+              <p class="text-muted small mb-1">Acessórios</p>
+              <p class="small">{{ getAccessoryNames(rental.accessoryIds) }}</p>
+            </div>
+            <div class="col-md-4">
+              <p class="text-muted small mb-1">Opção de Compra</p>
+              <p class="small">{{ rental.purchaseOption ? 'Sim' : 'Não' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Paginação -->
+      <div class="d-flex justify-content-center align-items-center gap-3 mt-4" *ngIf="userRentals.length > rentalsPerPage">
+        <button class="btn btn-sm btn-outline-primary" (click)="rentalsPrevPage()" [disabled]="rentalsPage === 1">
+          <i class="fas fa-chevron-left"></i> Anterior
+        </button>
+        <span class="text-muted fw-medium">Página {{ rentalsPage }} de {{ rentalsTotalPages }}</span>
+        <button class="btn btn-sm btn-outline-primary" (click)="rentalsNextPage()" [disabled]="rentalsPage === rentalsTotalPages">
+          Próxima <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

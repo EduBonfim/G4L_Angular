@@ -1,0 +1,379 @@
+<video autoplay muted loop playsinline style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2;">
+  <source src="assets/background/Definitivo.mp4" type="video/mp4">
+</video>
+<div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: -1;"></div>
+
+<div class="container mx-auto px-4 py-8">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="lg:col-span-2 space-y-8">
+      <div class="bg-white rounded-xl shadow-md p-6">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <div class="flex flex-wrap items-center gap-3">
+            <h2 class="text-2xl font-bold m-0">1. Escolha seu(s) Console(s)</h2>
+            <div *ngIf="selectedConsoleName" class="text-lg font-semibold text-blue-600 animate-pulse">
+              {{ selectedConsoleName }} foi selecionado(s)!
+            </div>
+          </div>
+          <button 
+            (click)="clearSelection()" 
+            class="bg-red-500 hover:bg-red-600 text-white font-bold px-4 py-2 rounded-lg transition-all duration-300 flex items-center gap-2 shadow-lg text-sm"
+            [disabled]="!selectedConsoleId && selectedGameIds.length === 0 && selectedAccessoryIds.length === 0 && !selectedPlan"
+            [class.opacity-50]="!selectedConsoleId && selectedGameIds.length === 0 && selectedAccessoryIds.length === 0 && !selectedPlan"
+            [class.cursor-not-allowed]="!selectedConsoleId && selectedGameIds.length === 0 && selectedAccessoryIds.length === 0 && !selectedPlan"
+          >
+            <i class="fas fa-trash"></i>
+            Limpar Seleção
+          </button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div
+            *ngFor="let console of pagedConsoles"
+            (click)="selectConsole(console.id)"
+            class="rounded-xl overflow-hidden transition-all duration-300 cursor-pointer relative"
+            [style.border]="console.id === selectedConsoleId ? '3px solid #3b82f6' : '3px solid #d1d5db'"
+            [style.box-shadow]="console.id === selectedConsoleId ? '0 0 10px rgba(59, 130, 246, 0.8), 0 0 20px rgba(59, 130, 246, 0.5), inset 0 0 10px rgba(59, 130, 246, 0.2)' : 'none'"
+            [style.background-color]="console.id === selectedConsoleId ? 'rgba(59, 130, 246, 0.03)' : 'transparent'"
+            style="transition: all 0.3s ease;"
+          >
+            <div class="relative h-40 md:h-44 lg:h-48">
+              <img [src]="console.image" [alt]="console.name" class="absolute inset-0 w-full h-full object-cover" />
+              <div class="absolute inset-0 hover:bg-black/10 transition-colors"></div>
+              <div class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/70 to-transparent text-white">
+                <h3 class="text-lg font-bold mb-1">{{ console.name }}</h3>
+                <span class="inline-block bg-white/90 text-blue-700 px-3 py-1 rounded font-semibold text-sm">{{ console.price | currency:'BRL' }}/mês</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-4 flex items-center justify-center space-x-2" *ngIf="consolesTotalPages > 1">
+          <button class="px-3 py-1 border rounded" (click)="prevConsoles()" [disabled]="consolesPage === 1">Anterior</button>
+          <ng-container *ngFor="let p of range(consolesTotalPages)">
+            <button (click)="setConsolesPage(p)" [ngClass]="{'font-bold underline': consolesPage === p}" class="px-3 py-1 border rounded">{{ p }}</button>
+          </ng-container>
+          <button class="px-3 py-1 border rounded" (click)="nextConsoles()" [disabled]="consolesPage === consolesTotalPages">Próxima</button>
+        </div>
+      </div>
+      <div id="games-section" class="bg-white rounded-xl shadow-md p-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-3">
+          <h2 class="text-2xl font-bold m-0">2. Escolha seus jogos (Opcional)</h2>
+          <div class="flex flex-wrap items-center gap-2">
+            <button (click)="setLetter(null)" class="px-2 py-1 rounded text-xs md:text-sm border"
+              [ngClass]="{ 'bg-blue-700 text-white border-blue-700': !selectedLetter, 'bg-gray-100 text-gray-700': selectedLetter }">Todos</button>
+            <select (change)="onLetterChange($event)" class="px-2 py-1 border rounded text-xs md:text-sm bg-white">
+              <option value="">Filtrar por letra</option>
+              <option *ngFor="let L of availableLetters" [value]="L">{{ L }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          <div
+            *ngFor="let game of pagedGames"
+            (click)="toggleGame(game.id)"
+            class="rounded-xl overflow-hidden transition-all duration-300 cursor-pointer"
+            [style.border]="selectedGameIds.includes(game.id) ? '3px solid #3b82f6' : '3px solid #d1d5db'"
+            [style.box-shadow]="selectedGameIds.includes(game.id) ? '0 0 10px rgba(59, 130, 246, 0.8), 0 0 20px rgba(59, 130, 246, 0.5), inset 0 0 10px rgba(59, 130, 246, 0.2)' : 'none'"
+            [style.background-color]="selectedGameIds.includes(game.id) ? 'rgba(59, 130, 246, 0.03)' : 'transparent'"
+            style="transition: all 0.3s ease;"
+          >
+            <div class="bg-white">
+              <div class="relative h-40 md:h-48 bg-gray-100 flex items-center justify-center p-2">
+                <img [src]="game.image" [alt]="game.name" class="max-h-full max-w-full object-contain" loading="lazy" />
+                <div class="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/70 to-transparent text-white">
+                  <span class="inline-block bg-white/90 text-blue-700 px-2.5 py-0.5 rounded font-semibold text-xs md:text-sm">{{ game.price | currency:'BRL' }}</span>
+                </div>
+              </div>
+              <div class="p-3">
+                <h3 class="text-xs md:text-sm font-bold two-line-title text-center leading-snug" [title]="game.name">{{ game.name }}</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-4 flex items-center justify-center space-x-2">
+          <button class="px-3 py-1 border rounded" (click)="prevGames()" [disabled]="gamesPage === 1">Anterior</button>
+          <ng-container *ngFor="let p of range(gamesTotalPages)">
+            <button (click)="setGamesPage(p)" [ngClass]="{'font-bold underline': gamesPage === p}" class="px-3 py-1 border rounded">{{ p }}</button>
+          </ng-container>
+          <button class="px-3 py-1 border rounded" (click)="nextGames()" [disabled]="gamesPage === gamesTotalPages">Próxima</button>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl shadow-md p-6">
+        <h2 class="text-2xl font-bold mb-4">3. Escolha seus acessórios (Opcional)</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          <div
+            *ngFor="let accessory of pagedAccessories"
+            (click)="toggleAccessory(accessory.id)"
+            class="rounded-xl overflow-hidden transition-all duration-300 cursor-pointer"
+            [style.border]="selectedAccessoryIds.includes(accessory.id) ? '3px solid #3b82f6' : '3px solid #d1d5db'"
+            [style.box-shadow]="selectedAccessoryIds.includes(accessory.id) ? '0 0 10px rgba(59, 130, 246, 0.8), 0 0 20px rgba(59, 130, 246, 0.5), inset 0 0 10px rgba(59, 130, 246, 0.2)' : 'none'"
+            [style.background-color]="selectedAccessoryIds.includes(accessory.id) ? 'rgba(59, 130, 246, 0.03)' : 'transparent'"
+            style="transition: all 0.3s ease;"
+          >
+            <div class="bg-white">
+              <div class="relative h-32 md:h-36 bg-gray-100 flex items-center justify-center p-2">
+                <img [src]="accessory.image" [alt]="accessory.name" class="max-h-full max-w-full object-contain" loading="lazy" />
+                <div class="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/70 to-transparent text-white">
+                  <span class="inline-block bg-white/90 text-green-700 px-2.5 py-0.5 rounded font-semibold text-xs md:text-sm">{{ accessory.price | currency:'BRL' }}</span>
+                </div>
+                <div class="absolute inset-0 hover:bg-black/10 transition-colors"></div>
+              </div>
+              <div class="p-3 text-center">
+                <h3 class="text-xs md:text-sm font-bold two-line-title leading-snug" [title]="accessory.name">{{ accessory.name }}</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-4 flex items-center justify-center space-x-2">
+          <button class="px-3 py-1 border rounded" (click)="prevAccessories()" [disabled]="accessoriesPage === 1">Anterior</button>
+          <ng-container *ngFor="let p of range(accessoriesTotalPages)">
+            <button (click)="setAccessoriesPage(p)" [ngClass]="{'font-bold underline': accessoriesPage === p}" class="px-3 py-1 border rounded">{{ p }}</button>
+          </ng-container>
+          <button class="px-3 py-1 border rounded" (click)="nextAccessories()" [disabled]="accessoriesPage === accessoriesTotalPages">Próxima</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md p-6 h-fit sticky top-0">
+      <h2 class="text-2xl font-bold mb-6">Escolha seu Plano !</h2>
+      <div class="grid grid-cols-1 gap-4 mb-8">
+        <!-- Plano Semanal -->
+        <div 
+          (click)="selectPlan('Semanal')" 
+          class="rounded-xl overflow-hidden transition-all duration-300 cursor-pointer relative"
+          [style.border]="selectedPlan === 'Semanal' ? '3px solid #cd7f32' : '3px solid #d1d5db'"
+          [style.box-shadow]="selectedPlan === 'Semanal' ? '0 0 15px rgba(205, 127, 50, 0.9), 0 0 30px rgba(205, 127, 50, 0.6), inset 0 0 15px rgba(205, 127, 50, 0.3)' : 'none'"
+          [style.background-color]="selectedPlan === 'Semanal' ? 'rgba(205, 127, 50, 0.05)' : 'transparent'"
+          style="transition: all 0.3s ease;"
+        >
+          <div class="relative h-36 md:h-40">
+            <img src="/assets/planos/semanal.jpg" alt="Plano Semanal" class="absolute inset-0 w-full h-full object-cover" />
+            <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/70 to-transparent flex items-end justify-between">
+              <div class="text-white text-xs md:text-sm font-bold uppercase leading-tight">Semanal</div>
+              <div class="bg-white/90 text-blue-700 px-2 py-0.5 rounded font-semibold text-xs md:text-sm">{{ planPrice('Semanal') | currency:'BRL' }}</div>
+            </div>
+          </div>
+        </div>
+        <!-- Plano Mensal -->
+        <div 
+          (click)="selectPlan('Mensal')" 
+          class="rounded-xl overflow-hidden transition-all duration-300 cursor-pointer relative"
+          [style.border]="selectedPlan === 'Mensal' ? '3px solid #6b7280' : '3px solid #d1d5db'"
+          [style.box-shadow]="selectedPlan === 'Mensal' ? '0 0 20px rgba(75, 85, 99, 1), 0 0 40px rgba(75, 85, 99, 0.8), inset 0 0 20px rgba(75, 85, 99, 0.4)' : 'none'"
+          [style.background-color]="selectedPlan === 'Mensal' ? 'rgba(75, 85, 99, 0.08)' : 'transparent'"
+          style="transition: all 0.3s ease;"
+        >
+          <div class="relative h-36 md:h-40">
+            <img src="/assets/planos/mensal.jpg" alt="Plano Mensal" class="absolute inset-0 w-full h-full object-cover" />
+            <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/70 to-transparent flex items-end justify-between">
+              <div class="text-white text-xs md:text-sm font-bold uppercase leading-tight">Mensal</div>
+              <div class="bg-white/90 text-blue-700 px-2 py-0.5 rounded font-semibold text-xs md:text-sm">{{ planPrice('Mensal') | currency:'BRL' }}</div>
+            </div>
+          </div>
+        </div>
+        <!-- Plano Anual -->
+        <div 
+          (click)="selectPlan('Anual')" 
+          class="rounded-xl overflow-hidden transition-all duration-300 cursor-pointer relative"
+          [style.border]="selectedPlan === 'Anual' ? '3px solid #ffd700' : '3px solid #d1d5db'"
+          [style.box-shadow]="selectedPlan === 'Anual' ? '0 0 15px rgba(255, 215, 0, 1), 0 0 30px rgba(255, 215, 0, 0.8), inset 0 0 15px rgba(255, 215, 0, 0.3)' : 'none'"
+          [style.background-color]="selectedPlan === 'Anual' ? 'rgba(255, 215, 0, 0.05)' : 'transparent'"
+          style="transition: all 0.3s ease;"
+        >
+          <div class="relative h-36 md:h-40">
+            <img src="/assets/planos/anual.jpg" alt="Plano Anual" class="absolute inset-0 w-full h-full object-cover" />
+            <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/70 to-transparent flex items-end justify-between">
+              <div class="text-white text-xs md:text-sm font-bold uppercase leading-tight">Anual</div>
+              <div class="bg-white/90 text-blue-700 px-2 py-0.5 rounded font-semibold text-xs md:text-sm">{{ planPrice('Anual') | currency:'BRL' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mb-8"><label class="flex items-center space-x-2" [ngClass]="{'cursor-pointer': selectedPlan === 'Anual', 'cursor-not-allowed opacity-50': selectedPlan !== 'Anual'}"><input type="checkbox" (change)="onPurchaseOptionChange($event)" [disabled]="selectedPlan !== 'Anual'" class="form-checkbox h-5 w-5 text-blue-600"><span>Opção de compra (+ R$ 1800)</span></label></div>
+      <div class="bg-gray-50 rounded-lg p-4 mb-6 relative">
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="font-bold">Resumo do Pedido</h3>
+          <button 
+            (click)="toggleDetails()" 
+            class="text-xs bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 transition"
+            [disabled]="!selectedConsoleId && selectedGameIds.length === 0 && selectedAccessoryIds.length === 0"
+          >
+            Ver Detalhes
+          </button>
+        </div>
+        <div class="space-y-2">
+          <div class="flex justify-between"><span class="text-gray-600">Console:</span><span class="font-medium uppercase">{{ selectedConsoleId || '-' }}</span></div>
+          <div class="flex justify-between"><span class="text-gray-600">Plano:</span><span class="font-medium">{{ selectedPlan || '-' }}</span></div>
+          <div class="flex justify-between"><span class="text-gray-600">Jogos:</span><span class="font-medium">{{ selectedGameIds.length }}</span></div>
+          <div class="flex justify-between"><span class="text-gray-600">Acessórios:</span><span class="font-medium">{{ selectedAccessoryIds.length }}</span></div>
+          <div class="border-t my-2"></div>
+          <div class="flex justify-between font-bold text-lg"><span>Total:</span><span class="text-blue-700">{{ totalPrice | currency:'BRL' }}</span></div>
+        </div>
+      </div>
+        <button (click)="finalizeRental()" [disabled]="!selectedConsoleId || !selectedPlan" class="w-full bg-blue-700 text-white py-3 rounded-lg font-bold hover:bg-blue-800 transition disabled:opacity-50">Finalizar Aluguel</button>
+    </div>
+  </div>
+
+  <!-- Modal de Detalhes -->
+  <div 
+    *ngIf="showDetails" 
+    class="fixed inset-0 z-50 flex items-start justify-center p-4 pt-8"
+    (click)="toggleDetails()"
+    style="background-color: rgba(0, 0, 0, 0.3);"
+  >
+    <div 
+      (click)="$event.stopPropagation()" 
+      class="rounded-2xl shadow-2xl w-full max-h-[85vh] overflow-y-auto"
+      style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(2px); max-width: 600px;"
+    >
+      <div class="sticky top-0 bg-white/90 backdrop-blur-sm border-b border-gray-200 p-6 flex justify-between items-center rounded-t-2xl z-50">
+        <h2 class="text-2xl font-bold text-gray-800">Detalhes do Pedido</h2>
+        <button 
+          (click)="toggleDetails()" 
+          class="text-gray-500 hover:text-gray-700 text-3xl font-bold leading-none z-50"
+        >
+          &times;
+        </button>
+      </div>
+
+      <div class="p-6 space-y-6">
+        <!-- Console Selecionado -->
+        <div *ngIf="getSelectedConsole()" class="bg-white/70 rounded-xl p-4 border border-gray-200">
+          <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
+            <span class="inline-block w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
+            Console
+          </h3>
+          <div class="relative rounded-xl overflow-hidden border-2 border-gray-300">
+            <button 
+              (click)="selectConsole(getSelectedConsole()!.id)" 
+              class="absolute top-2 right-2 z-10 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold transition shadow-lg"
+            >
+              ×
+            </button>
+            <div class="relative h-28">
+              <img [src]="getSelectedConsole()!.image" [alt]="getSelectedConsole()!.name" class="absolute inset-0 w-full h-full object-cover" />
+              <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/70 to-transparent text-white">
+                <h3 class="text-base font-bold mb-1">{{ getSelectedConsole()!.name }}</h3>
+                <span class="inline-block bg-white/90 text-blue-700 px-2.5 py-1 rounded font-semibold text-xs">{{ getSelectedConsole()!.price | currency:'BRL' }}/mês</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Plano Selecionado -->
+        <div *ngIf="selectedPlan" class="bg-white/70 rounded-xl p-4 border border-gray-200">
+          <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
+            <span class="inline-block w-2 h-2 bg-green-600 rounded-full mr-2"></span>
+            Plano
+          </h3>
+          <div class="relative rounded-xl overflow-hidden transition-all duration-300"
+               [style.border]="selectedPlan === 'Semanal' ? '3px solid #cd7f32' : selectedPlan === 'Mensal' ? '3px solid #6b7280' : '3px solid #ffd700'"
+               [style.box-shadow]="selectedPlan === 'Semanal' ? '0 0 15px rgba(205, 127, 50, 0.9), 0 0 30px rgba(205, 127, 50, 0.6)' : selectedPlan === 'Mensal' ? '0 0 20px rgba(75, 85, 99, 1), 0 0 40px rgba(75, 85, 99, 0.8)' : '0 0 15px rgba(255, 215, 0, 1), 0 0 30px rgba(255, 215, 0, 0.8)'"
+          >
+            <button 
+              (click)="selectPlan(selectedPlan)" 
+              class="absolute top-2 right-2 z-10 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold transition shadow-lg"
+            >
+              ×
+            </button>
+            <div class="relative h-28">
+              <img 
+                [src]="selectedPlan === 'Semanal' ? '/assets/planos/semanal.jpg' : selectedPlan === 'Mensal' ? '/assets/planos/mensal.jpg' : '/assets/planos/anual.jpg'" 
+                [alt]="'Plano ' + selectedPlan" 
+                class="absolute inset-0 w-full h-full object-cover" 
+              />
+              <div class="absolute inset-x-0 bottom-0 p-2.5 bg-gradient-to-t from-black/70 to-transparent flex items-end justify-between">
+                <div class="text-white text-xs font-bold uppercase leading-tight">{{ selectedPlan }}</div>
+                <div class="bg-white/90 text-blue-700 px-2 py-0.5 rounded font-semibold text-xs">
+                  {{ selectedPlan === 'Semanal' ? planPrice('Semanal') : selectedPlan === 'Mensal' ? planPrice('Mensal') : planPrice('Anual') | currency:'BRL' }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Jogos Selecionados -->
+        <div *ngIf="getSelectedGames().length > 0" class="bg-white/70 rounded-xl p-4 border border-gray-200">
+          <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
+            <span class="inline-block w-2 h-2 bg-purple-600 rounded-full mr-2"></span>
+            Jogos ({{ getSelectedGames().length }})
+          </h3>
+          <div class="grid grid-cols-2 gap-3">
+            <div *ngFor="let game of getSelectedGames()" class="relative rounded-xl overflow-hidden border-2 border-gray-300">
+              <button 
+                (click)="toggleGame(game.id)" 
+                class="absolute top-1 right-1 z-10 bg-red-500 hover:bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold transition shadow-lg"
+              >
+                ×
+              </button>
+              <div class="bg-white">
+                <div class="relative h-32 bg-gray-100 flex items-center justify-center p-2">
+                  <img [src]="game.image" [alt]="game.name" class="max-h-full max-w-full object-contain" />
+                  <div class="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/70 to-transparent text-white">
+                    <span class="inline-block bg-white/90 text-blue-700 px-2 py-0.5 rounded font-semibold text-xs">{{ game.price | currency:'BRL' }}</span>
+                  </div>
+                </div>
+                <div class="p-2">
+                  <h3 class="text-xs font-bold text-center leading-snug two-line-title" [title]="game.name">{{ game.name }}</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Acessórios Selecionados -->
+        <div *ngIf="getSelectedAccessories().length > 0" class="bg-white/70 rounded-xl p-4 border border-gray-200">
+          <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
+            <span class="inline-block w-2 h-2 bg-orange-600 rounded-full mr-2"></span>
+            Acessórios ({{ getSelectedAccessories().length }})
+          </h3>
+          <div class="grid grid-cols-2 gap-3">
+            <div *ngFor="let accessory of getSelectedAccessories()" class="relative rounded-xl overflow-hidden border-2 border-gray-300">
+              <button 
+                (click)="toggleAccessory(accessory.id)" 
+                class="absolute top-1 right-1 z-10 bg-red-500 hover:bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold transition shadow-lg"
+              >
+                ×
+              </button>
+              <div class="bg-white">
+                <div class="relative h-28 bg-gray-100 flex items-center justify-center p-2">
+                  <img [src]="accessory.image" [alt]="accessory.name" class="max-h-full max-w-full object-contain" />
+                  <div class="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/70 to-transparent text-white">
+                    <span class="inline-block bg-white/90 text-green-700 px-2 py-0.5 rounded font-semibold text-xs">{{ accessory.price | currency:'BRL' }}</span>
+                  </div>
+                </div>
+                <div class="p-2 text-center">
+                  <h3 class="text-xs font-bold leading-snug two-line-title" [title]="accessory.name">{{ accessory.name }}</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Opção de Compra -->
+        <div *ngIf="purchaseOption" class="bg-white/70 rounded-xl p-4 border border-gray-200">
+          <h3 class="text-lg font-bold text-gray-800 mb-2 flex items-center">
+            <span class="inline-block w-2 h-2 bg-yellow-600 rounded-full mr-2"></span>
+            Opção de Compra
+          </h3>
+          <p class="text-sm text-gray-600">+ R$ 1.800,00</p>
+        </div>
+
+        <!-- Total -->
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-4 text-white">
+          <div class="flex justify-between items-center">
+            <span class="text-lg font-bold">Total:</span>
+            <span class="text-2xl font-bold">{{ totalPrice | currency:'BRL' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sticky bottom-0 bg-white/90 backdrop-blur-sm border-t border-gray-200 p-4 rounded-b-2xl z-50">
+        <button 
+          (click)="toggleDetails()" 
+          class="w-full bg-gray-600 text-white py-3 rounded-lg font-semibold hover:bg-gray-700 transition"
+        >
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

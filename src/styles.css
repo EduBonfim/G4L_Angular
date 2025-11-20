@@ -1,0 +1,57 @@
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Catalog image: target 920x430 with preserved proportion and responsive max-width */
+.catalog-img {
+	width: 100%;         /* fill the card width */
+	max-width: 920px;    /* don't exceed target width on large screens */
+	aspect-ratio: 920 / 430; /* enforce desired proportion */
+	object-fit: cover;   /* crop to fill while preserving aspect */
+	display: block;
+}
+
+/* Hover underline reveal for full link/button width */
+.underline-reveal {
+	position: relative;
+	display: inline-block; /* ensure pseudo-element width equals content */
+}
+.underline-reveal::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	bottom: -2px;
+	height: 2px;
+	width: 100%;
+	background: currentColor;
+	transform: scaleX(0);
+	transform-origin: left; /* reveal from left to right */
+	transition: transform 300ms ease;
+}
+.underline-reveal:hover::after,
+.underline-reveal:focus-visible::after {
+	transform: scaleX(1);
+}
+
+/* Ajuste global: quando inputs têm botão de alternar (olho) à direita,
+	 mova o ícone padrão de erro do Bootstrap um pouco para a esquerda
+	 para evitar sobreposição. Aplica-se aos campos com wrapper
+	 .password-field ou classes utilitárias de inputs com toggle. */
+.password-field .form-control.is-invalid,
+.password-field .form-control.is-invalid:focus,
+.form-control.input-has-toggle.is-invalid,
+.form-control.input-has-toggle-2.is-invalid,
+.form-control.input-has-toggle.is-invalid:focus,
+.form-control.input-has-toggle-2.is-invalid:focus {
+	background-position: right 2.6rem center; /* espaço para o botão olho */
+	padding-right: 4rem; /* garante área livre p/ olho + ícone de erro */
+}
+
+/* Opcional: se o navegador suportar :has(), cobre outros wrappers com botão no fim */
+.position-relative:has(.password-toggle) .form-control.is-invalid,
+.position-relative:has(.btn.end-0) .form-control.is-invalid {
+	background-position: right 2.6rem center;
+	padding-right: 4rem;
+}
