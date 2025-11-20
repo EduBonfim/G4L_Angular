@@ -1,4 +1,4 @@
 export const environment = {
-  production: false,
-  apiBaseUrl: 'https://games-4-life.onrender.com'
+  production: true,
+  apiBaseUrl: 'https://g4l-spring.onrender.com/api'
 };
