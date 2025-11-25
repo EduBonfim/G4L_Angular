@@ -101,19 +101,9 @@ export class AuthService {
 
   // Método para verificar sessão no backend e atualizar cache
   checkSession(): Observable<UserResponse | null> {
-    // Se já tem usuário em cache, retorna ele
-    if (this.currentUserCache) {
-      return of(this.currentUserCache);
-    }
-    
-    const url = `${this.apiUrl}/me`;
-    return this.http.get<UserResponse>(url).pipe(
-      tap(user => this.saveToSession(user)),
-      catchError(() => {
-        this.saveToSession(null);
-        return of(null);
-      })
-    );
+    // Uso acadêmico: não há sessão de backend; confiamos apenas no sessionStorage.
+    // Se houver cache, retorna; caso contrário null sem chamada HTTP.
+    return of(this.currentUserCache);
   }
 
   getUserType(): UserType | null {

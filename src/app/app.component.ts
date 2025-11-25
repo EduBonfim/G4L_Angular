@@ -7,7 +7,7 @@ import { environment } from '../environments/environment';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
   title = 'Games4Life';
@@ -26,12 +26,7 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     // Atualizar status imediatamente com dados do sessionStorage
     this.updateAuthStatus();
-    
-    // Verificar sessão no backend ao iniciar (em background)
-    this.authService.checkSession().subscribe(() => {
-      this.updateAuthStatus();
-    });
-    
+    // Sem backend de sessão: não chamar checkSession para evitar requisição inútil
     this.router.events.subscribe(ev => {
       if (ev instanceof NavigationEnd) {
         this.updateAuthStatus();
