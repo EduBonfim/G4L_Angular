@@ -47,7 +47,7 @@ export class AuthService {
 
   // ⬅️ LOGIN ADMIN LOCAL REINTRODUZIDO
   private readonly VALID_USERNAME = 'admin';
-  private readonly VALID_PASSWORD = '1234';
+  private readonly VALID_PASSWORD = 'CoghiOmaisLindo2025!';
 
   constructor(private router: Router, private http: HttpClient) {
     // Restaurar usuário do sessionStorage ao inicializar
