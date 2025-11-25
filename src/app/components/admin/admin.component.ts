@@ -125,7 +125,7 @@ export class AdminComponent implements OnInit {
    * Carrega todos os dados da API (Spring Backend)
    */
   loadAdminData(): void {
-    this.http.get<Client[]>(`${this.apiUrl}/api/clients`).subscribe({
+    this.http.get<Client[]>(`${this.apiUrl}/clients`).subscribe({
       next: (data) => {
         this.clients = data;
         console.log('Clients carregados:', data.length);
@@ -194,7 +194,7 @@ export class AdminComponent implements OnInit {
     if (!mult || mult <= 0) return;
 
     const body = { plan, mult };
-    const url = `${this.apiUrl}/api/rentals/${rental.id}/extend`;
+    const url = `${this.apiUrl}/rentals/${rental.id}/extend`;
 
     this.http.post<any>(url, body).subscribe({
       next: (updatedDto) => {
@@ -222,7 +222,7 @@ export class AdminComponent implements OnInit {
       return;
     }
 
-    const url = `${this.apiUrl}/api/rentals/${rental.id}/confirm-payment`;
+    const url = `${this.apiUrl}/rentals/${rental.id}/confirm-payment`;
     
     this.http.post<any>(url, {}).subscribe({
       next: (updatedDto) => {
@@ -255,7 +255,7 @@ export class AdminComponent implements OnInit {
       return;
     }
     
-    const url = `${this.apiUrl}/api/games`;
+    const url = `${this.apiUrl}/games`;
     this.http.post<Game>(url, this.addGameForm.value).subscribe({
       next: (newGame) => {
         alert('Jogo cadastrado com sucesso!');
@@ -277,7 +277,7 @@ export class AdminComponent implements OnInit {
       return;
     }
     
-    const url = `${this.apiUrl}/api/accessories`;
+    const url = `${this.apiUrl}/accessories`;
     this.http.post<Accessory>(url, this.addAccessoryForm.value).subscribe({
       next: (newAccessory) => {
         alert('Acessório cadastrado com sucesso!');
@@ -299,7 +299,7 @@ export class AdminComponent implements OnInit {
       return;
     }
 
-    const url = `${this.apiUrl}/api/consoles`;
+    const url = `${this.apiUrl}/consoles`;
     this.http.post<Console>(url, this.addConsoleForm.value).subscribe({
       next: (newConsole) => {
         alert('Console cadastrado com sucesso!');
@@ -318,7 +318,7 @@ export class AdminComponent implements OnInit {
   onDeleteConsole(id: string): void {
     if (!confirm('Confirma a exclusão deste console?')) { return; }
     
-    const url = `${this.apiUrl}/api/consoles/${id}`;
+    const url = `${this.apiUrl}/consoles/${id}`;
     this.http.delete(url).subscribe({
       next: () => {
         this.api.getConsoles().subscribe(data => this.consoles = data);
@@ -333,7 +333,7 @@ export class AdminComponent implements OnInit {
   onDeleteGame(id: string): void {
     if (!confirm('Confirma a exclusão deste jogo?')) { return; }
     
-    const url = `${this.apiUrl}/api/games/${id}`;
+    const url = `${this.apiUrl}/games/${id}`;
     this.http.delete(url).subscribe({
       next: () => {
         this.api.getGames().subscribe(data => this.games = data);
@@ -348,7 +348,7 @@ export class AdminComponent implements OnInit {
   onDeleteAccessory(id: string): void {
     if (!confirm('Confirma a exclusão deste acessório?')) { return; }
     
-    const url = `${this.apiUrl}/api/accessories/${id}`;
+    const url = `${this.apiUrl}/accessories/${id}`;
     this.http.delete(url).subscribe({
       next: () => {
         this.api.getAccessories().subscribe(data => this.accessories = data);
@@ -363,11 +363,11 @@ export class AdminComponent implements OnInit {
   onDeleteClient(id: any): void {
     if (!confirm('Confirmar exclusão do cliente e todos os seus aluguéis?')) { return; }
 
-    const url = `${this.apiUrl}/api/clients/${id}`;
+    const url = `${this.apiUrl}/clients/${id}`;
     this.http.delete(url).subscribe({
       next: () => {
         // Recarregar listas afetadas
-        this.http.get<Client[]>(`${this.apiUrl}/api/clients`).subscribe({
+        this.http.get<Client[]>(`${this.apiUrl}/clients`).subscribe({
           next: (data) => this.clients = data,
           error: () => {}
         });
@@ -498,11 +498,11 @@ export class AdminComponent implements OnInit {
     let url = '';
     
     if (this.editingItemType === 'game') {
-      url = `${this.apiUrl}/api/games/${this.editingItemId}`;
+      url = `${this.apiUrl}/games/${this.editingItemId}`;
     } else if (this.editingItemType === 'accessory') {
-      url = `${this.apiUrl}/api/accessories/${this.editingItemId}`;
+      url = `${this.apiUrl}/accessories/${this.editingItemId}`;
     } else if (this.editingItemType === 'console') {
-      url = `${this.apiUrl}/api/consoles/${this.editingItemId}`;
+      url = `${this.apiUrl}/consoles/${this.editingItemId}`;
     }
     
     this.http.put(url, data).subscribe({

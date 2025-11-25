@@ -54,7 +54,7 @@ export class AppComponent implements OnInit {
     this.needsAddress = !!(this.isLoggedIn && this.isCliente && addrs.length === 0);
     // Se logado e cliente e os endereços ainda não foram carregados, busca do backend
     if (this.isLoggedIn && this.isCliente && user?.id && addrs.length === 0 && !this.addressesLoaded) {
-      const url = `${this.apiBase}/api/addresses/client/${user.id}`;
+      const url = `${this.apiBase}/addresses/client/${user.id}`;
       console.log('Buscando endereços para o header:', url);
       this.addressesLoaded = true; // evita requisições repetidas em navegações
       this.http.get<any[]>(url).subscribe({

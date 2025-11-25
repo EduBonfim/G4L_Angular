@@ -270,7 +270,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     const currentUserId = this.authService.getCurrentUserId();
     if (!currentUserId) return;
 
-    const url = `${this.apiUrl}/api/addresses/client/${currentUserId}`;
+	const url = `${this.apiUrl}/addresses/client/${currentUserId}`;
     
     this.http.get<Address[]>(url).subscribe(addressesFromBackend => {
       this.addresses = addressesFromBackend;
@@ -294,7 +294,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.cepLookupError = null;
 
     // ⬅️ CORREÇÃO FINAL: Chama o proxy no Spring (Resolve o CORS)
-    const urlInterna = `${this.apiUrl}/api/cep/${digitsOnlyCep}`;
+	const urlInterna = `${this.apiUrl}/cep/${digitsOnlyCep}`;
     
     this.http.get<any>(urlInterna).subscribe({
       next: (data) => {
@@ -325,7 +325,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (!currentUserId) return;
 
     const addressData = this.addressForm.value;
-    const apiUrl = `${this.apiUrl}/api/addresses`;
+	const apiUrl = `${this.apiUrl}/addresses`;
 
     if (this.editingAddressId !== null) {
       // MODO EDIÇÃO (PUT)
@@ -385,7 +385,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (!addressToRemove.id) return;
     if (!confirm("Tem certeza que deseja excluir este endereço?")) return;
     
-    const url = `${this.apiUrl}/api/addresses/${addressToRemove.id}`;
+	const url = `${this.apiUrl}/addresses/${addressToRemove.id}`;
     
     this.http.delete(url).subscribe({
       next: () => {

@@ -189,7 +189,7 @@ export class UserAreaComponent implements OnInit, OnDestroy {
   
   loadUserAddresses(): void {
     if (!this.currentUser || !this.currentUser.id) return;
-    const url = `${this.apiUrl}/api/addresses/client/${this.currentUser.id}`;
+    const url = `${this.apiUrl}/addresses/client/${this.currentUser.id}`;
     
     this.http.get<Address[]>(url).subscribe(addressesFromBackend => {
       this.addresses = addressesFromBackend;
@@ -337,7 +337,7 @@ export class UserAreaComponent implements OnInit, OnDestroy {
     }
 
     const body = { plan, mult };
-    const url = `${this.apiUrl}/api/rentals/${rental.id}/extend`;
+    const url = `${this.apiUrl}/rentals/${rental.id}/extend`;
 
     this.http.post<any>(url, body).subscribe({
       next: (updatedDto) => {
@@ -391,7 +391,7 @@ export class UserAreaComponent implements OnInit, OnDestroy {
       phone: this.editForm.get('phone')?.value
     };
     
-    const url = `${this.apiUrl}/api/clients/${this.currentUser.id}`;
+    const url = `${this.apiUrl}/clients/${this.currentUser.id}`;
 
     this.http.put<Client>(url, updatedData).subscribe({
       next: (userFromBackend) => {
@@ -452,7 +452,7 @@ export class UserAreaComponent implements OnInit, OnDestroy {
     this.cepLookupLoading = true;
     this.cepLookupError = null;
 
-    const urlInterna = `${this.apiUrl}/api/cep/${digitsOnlyCep}`;
+    const urlInterna = `${this.apiUrl}/cep/${digitsOnlyCep}`;
     
     this.http.get<any>(urlInterna).subscribe({
       next: (data) => {
@@ -494,7 +494,7 @@ export class UserAreaComponent implements OnInit, OnDestroy {
     if (!addressToRemove.id) return;
     if (!confirm("Tem certeza que deseja excluir este endereço?")) return;
 
-    const url = `${this.apiUrl}/api/addresses/${addressToRemove.id}`;
+    const url = `${this.apiUrl}/addresses/${addressToRemove.id}`;
     
     this.http.delete(url).subscribe({
       next: () => {
@@ -518,7 +518,7 @@ export class UserAreaComponent implements OnInit, OnDestroy {
     const addressData = this.addressForm.value;
 
     if (this.editingAddressId !== null) {
-      const url = `${this.apiUrl}/api/addresses/${this.editingAddressId}`;
+      const url = `${this.apiUrl}/addresses/${this.editingAddressId}`;
       
       this.http.put<Address>(url, addressData).subscribe(updatedAddress => {
         this.addresses[this.editingAddressIndex!] = updatedAddress;
@@ -532,7 +532,7 @@ export class UserAreaComponent implements OnInit, OnDestroy {
         return; 
       }
       
-      const url = `${this.apiUrl}/api/addresses/client/${this.currentUser.id}`;
+      const url = `${this.apiUrl}/addresses/client/${this.currentUser.id}`;
       
       this.http.post<Address>(url, addressData).subscribe(newAddress => {
         this.addresses.push(newAddress);
