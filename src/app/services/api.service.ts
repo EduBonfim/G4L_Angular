@@ -6,7 +6,7 @@ import { catchError } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  private api = `${environment.apiBaseUrl}/api`;
+  private api = environment.apiBaseUrl;
   constructor(private http: HttpClient) {}
 
   getGames(): Observable<any[]> {

@@ -43,7 +43,7 @@ export interface UserResponse {
 export class AuthService {
   private readonly SESSION_KEY = 'authUser';
   private currentUserCache: UserResponse | null = null;
-  private apiUrl = `${environment.apiBaseUrl}/api/auth`;
+  private apiUrl = `${environment.apiBaseUrl}/auth`;
 
   // ⬅️ LOGIN ADMIN LOCAL REINTRODUZIDO
   private readonly VALID_USERNAME = 'admin';
