@@ -256,7 +256,12 @@ export class AdminComponent implements OnInit {
     }
     
     const url = `${this.apiUrl}/games`;
-    this.http.post<Game>(url, this.addGameForm.value).subscribe({
+    // Normalizar console antes de enviar (garante alias ps5, xbox, switch, steam)
+    const payload = { ...this.addGameForm.value };
+    if (payload.console && payload.console !== 'all') {
+      payload.console = this.getConsoleAbbreviation(payload.console);
+    }
+    this.http.post<Game>(url, payload).subscribe({
       next: (newGame) => {
         alert('Jogo cadastrado com sucesso!');
         this.addGameForm.reset({ console: 'all' });
@@ -278,7 +283,12 @@ export class AdminComponent implements OnInit {
     }
     
     const url = `${this.apiUrl}/accessories`;
-    this.http.post<Accessory>(url, this.addAccessoryForm.value).subscribe({
+    // Normalizar console antes de enviar (evita salvar 'STEAM DECK', 'Xbox Series X' etc.)
+    const payload = { ...this.addAccessoryForm.value };
+    if (payload.console && payload.console !== 'all') {
+      payload.console = this.getConsoleAbbreviation(payload.console);
+    }
+    this.http.post<Accessory>(url, payload).subscribe({
       next: (newAccessory) => {
         alert('Acessório cadastrado com sucesso!');
         this.addAccessoryForm.reset({ console: 'all' });
@@ -493,6 +503,10 @@ export class AdminComponent implements OnInit {
     // Se for jogo ou acessório, converter o nome do console para abreviação
     if ((this.editingItemType === 'game' || this.editingItemType === 'accessory') && data.console && data.console !== 'all') {
       data.console = this.getConsoleAbbreviation(data.console);
+    }
+    // Caso o console esteja marcado como 'all', remover campo para evitar validações do backend
+    if ((this.editingItemType === 'game' || this.editingItemType === 'accessory') && data.console === 'all') {
+      delete (data as any).console;
     }
     
     let url = '';
