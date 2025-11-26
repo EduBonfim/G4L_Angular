@@ -1,0 +1,31 @@
+<video autoplay muted loop playsinline style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2;">
+  <source src="assets/background/Definitivo.mp4" type="video/mp4">
+</video>
+<div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: -1;"></div>
+
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-8 text-white" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">
+    <span *ngIf="!selectedConsoleName">Acessórios Disponíveis</span>
+    <span *ngIf="selectedConsoleName">Acessórios Disponíveis para {{ selectedConsoleName }}</span>
+  </h1>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div *ngFor="let accessory of filteredAccessories"
+         class="card-item bg-white rounded-xl shadow-md overflow-hidden transition-transform duration-300 hover:transform hover:-translate-y-1 border-4 border-gray-300"
+         [ngClass]="{ 'neon-border-selected': isSelected(accessory.id) }">
+      <img [src]="accessory.image" [alt]="accessory.name" class="w-full h-48 object-cover">
+      <div class="p-6">
+        <h3 class="text-xl font-bold mb-2">{{ accessory.name }}</h3>
+        <div class="flex flex-col items-stretch gap-3">
+          <span class="font-bold text-blue-700">R$ {{ accessory.price }}/mês</span>
+          <button (click)="toggleSelect(accessory)"
+                  class="px-3 py-2 rounded font-semibold"
+                  [ngClass]="isSelected(accessory.id) ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-800 hover:bg-blue-200'">
+            {{ isSelected(accessory.id) ? 'Selecionado' : 'Selecionar' }}
+          </button>
+          <a (click)="goToRent()" class="text-blue-600 hover:text-blue-800 font-medium cursor-pointer text-center">Ir para Aluguel</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

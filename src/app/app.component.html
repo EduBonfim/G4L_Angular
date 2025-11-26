@@ -1,0 +1,137 @@
+<nav class="bg-black/60 backdrop-blur-md text-white shadow-lg fixed w-full z-30">
+  <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+    <div class="flex items-center gap-3">
+      <!-- Botão hambúrguer (somente mobile) -->
+      <button type="button"
+              class="md:hidden p-2 rounded hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/40"
+              aria-label="Abrir menu"
+              (click)="toggleMenu()">
+        <i class="fas fa-bars text-xl"></i>
+      </button>
+      <a routerLink="/home" class="flex items-center space-x-2">
+        <i class="fas fa-gamepad text-2xl md:text-3xl"></i>
+        <span class="font-bold text-lg md:text-xl">GAMES 4 LIFE</span>
+      </a>
+    </div>
+
+    <!-- Navegação desktop -->
+    <div class="hidden md:flex items-center space-x-6">
+      <a routerLink="/home" routerLinkActive="text-white" class="text-white/80 hover:text-white transition underline-reveal"><i class="fas fa-home mr-1 text-xl"></i> Início</a>
+      <a routerLink="/rent" routerLinkActive="text-white" class="text-white/80 hover:text-white transition underline-reveal"><i class="fas fa-gamepad mr-1 text-xl"></i> Alugar</a>
+      <a routerLink="/games" routerLinkActive="text-white" class="text-white/80 hover:text-white transition underline-reveal"><i class="fas fa-list mr-1 text-xl"></i> Jogos</a>
+      <a routerLink="/accessories" routerLinkActive="text-white" class="text-white/80 hover:text-white transition underline-reveal"><i class="fas fa-headset mr-1 text-xl"></i> Acessórios</a>
+      <a *ngIf="isCliente" routerLink="/user-area" routerLinkActive="text-white" class="text-white/80 hover:text-white transition underline-reveal"><i class="fas fa-user mr-1 text-xl"></i> Minha Área</a>
+      <a *ngIf="isAdmin" routerLink="/admin" routerLinkActive="text-white" class="text-white/80 hover:text-white transition underline-reveal"><i class="fas fa-user-shield mr-1 text-xl"></i> Admin</a>
+    </div>
+
+    <!-- Ações à direita -->
+    <div class="flex items-center space-x-4">
+      <!-- Aviso para concluir cadastro -->
+      <div *ngIf="isLoggedIn && isCliente && needsAddress" class="relative hidden md:block">
+        <button type="button" (click)="toggleAddressTip()" class="text-red-400 hover:text-red-300 font-semibold underline decoration-red-400/60">
+          Conclua seu cadastro
+        </button>
+        <div *ngIf="showAddressTip" class="absolute left-0 mt-2 px-3 py-2 text-sm bg-red-600 text-white rounded shadow-lg whitespace-nowrap">
+          Cadastre um endereço valido !
+        </div>
+      </div>
+      <span *ngIf="isLoggedIn && currentUserName" class="hidden md:inline text-white/80">Bem-vindo(a), {{ currentUserName }}</span>
+      <a *ngIf="!isLoggedIn" routerLink="/login" class="text-white/80 hover:text-white transition flex items-center gap-2">
+        <i class="fas fa-sign-in-alt text-lg md:text-xl"></i>
+        <span class="hidden sm:inline">Login</span>
+      </a>
+      <button *ngIf="isLoggedIn" (click)="logout()" class="text-red-300 hover:text-red-200 transition flex items-center gap-2">
+        <i class="fas fa-sign-out-alt text-lg md:text-xl"></i>
+        <span class="hidden sm:inline">Sair</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Overlay -->
+<div *ngIf="menuOpen"
+     class="fixed inset-0 bg-black/50 backdrop-blur-[1px] z-40 md:hidden"
+     (click)="closeMenu()"
+     aria-hidden="true"></div>
+
+<!-- Drawer lateral -->
+<aside class="fixed inset-y-0 left-0 w-72 max-w-[85%] bg-white z-50 shadow-2xl md:hidden transform transition-transform duration-300"
+       [ngClass]="{ '-translate-x-full': !menuOpen, 'translate-x-0': menuOpen }"
+       role="dialog" aria-modal="true" aria-label="Menu de navegação">
+  <div class="flex items-center justify-between px-4 py-4 border-b">
+    <div class="flex items-center gap-2 text-gray-800">
+      <i class="fas fa-gamepad"></i>
+      <span class="font-bold">Games 4 Life</span>
+    </div>
+    <button type="button" class="p-2 rounded hover:bg-black/5" aria-label="Fechar menu" (click)="closeMenu()">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <nav class="py-2">
+    <a (click)="closeMenu()" routerLink="/home" class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100">
+      <i class="fas fa-home w-5 text-gray-700"></i>
+      <span>Início</span>
+    </a>
+    <a (click)="closeMenu()" routerLink="/rent" class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100">
+      <i class="fas fa-gamepad w-5 text-gray-700"></i>
+      <span>Alugar</span>
+    </a>
+    <a (click)="closeMenu()" routerLink="/games" class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100">
+      <i class="fas fa-list w-5 text-gray-700"></i>
+      <span>Jogos</span>
+    </a>
+    <a (click)="closeMenu()" routerLink="/accessories" class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100">
+      <i class="fas fa-headset w-5 text-gray-700"></i>
+      <span>Acessórios</span>
+    </a>
+    <a *ngIf="isCliente" (click)="closeMenu()" routerLink="/user-area" class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100">
+      <i class="fas fa-user w-5 text-gray-700"></i>
+      <span>Minha Área</span>
+    </a>
+    <a *ngIf="isAdmin" (click)="closeMenu()" routerLink="/admin" class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100">
+      <i class="fas fa-user-shield w-5 text-gray-700"></i>
+      <span>Admin</span>
+    </a>
+    <div class="h-px bg-gray-200 my-2"></div>
+    <a *ngIf="!isLoggedIn" (click)="closeMenu()" routerLink="/login" class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100">
+      <i class="fas fa-sign-in-alt w-5 text-gray-700"></i>
+      <span>Login</span>
+    </a>
+    <button *ngIf="isLoggedIn" (click)="logout(); closeMenu()" class="w-full text-left flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50">
+      <i class="fas fa-sign-out-alt w-5"></i>
+      <span>Sair</span>
+    </button>
+  </nav>
+</aside>
+
+<main class="pt-16 min-h-screen">
+  <router-outlet></router-outlet>
+</main>
+
+<footer class="bg-gray-800 text-white py-8">
+  <div class="container mx-auto px-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div>
+        <h3 class="text-xl font-bold mb-4">Games 4 Life</h3>
+        <p>Domine o jogo com os consoles mais poderosos — jogue, alugue ou conquiste o seu!.</p>
+      </div>
+      <div>
+        <h3 class="text-xl font-bold mb-4">Links Rápidos</h3>
+        <ul class="space-y-2">
+          <li><a routerLink="/home" class="hover:text-blue-300 transition">Início</a></li>
+          <li><a routerLink="/rent" class="hover:text-blue-300 transition">Alugar</a></li>
+          <li><a routerLink="/games" class="hover:text-blue-300 transition">Jogos</a></li>
+          <li><a routerLink="/accessories" class="hover:text-blue-300 transition">Acessórios</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-xl font-bold mb-4">Contato</h3>
+        <p><i class="fas fa-envelope mr-2"></i> contato&#64;games4life.com</p>
+        <p><i class="fas fa-phone mr-2"></i> (11) 98765-4321</p>
+      </div>
+    </div>
+    <div class="border-t border-gray-700 mt-8 pt-6 text-center">
+      <p>&copy; 2025 Games 4 Life. Todos os direitos reservados.</p>
+    </div>
+  </div>
+</footer>

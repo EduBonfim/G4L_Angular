@@ -1,0 +1,373 @@
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="fs-2 fw-bold">Painel de Administração</h1>
+  </div>
+  
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-4">
+      <h2 class="fs-4 fw-bold mb-3">Cadastrar Novo Jogo</h2>
+      <form [formGroup]="addGameForm" (ngSubmit)="onAddGame()">
+        <div class="row g-3">
+          <div class="col-md-6"><label class="form-label fw-medium">Nome do Jogo</label><input type="text" formControlName="name" class="form-control"></div>
+          <div class="col-md-6"><label class="form-label fw-medium">Preço (R$)</label><input type="number" formControlName="price" class="form-control"></div>
+          <div class="col-md-6">
+            <label class="form-label fw-medium">Console</label>
+            <select formControlName="console" class="form-control">
+              <option value="all">Todos os Consoles</option>
+              <option *ngFor="let console of consoles" [value]="console.name">{{ console.name }}</option>
+            </select>
+          </div>
+          <div class="col-md-6"><label class="form-label fw-medium">Imagem (URL)</label><input type="url" formControlName="image" class="form-control"></div>
+          <div class="col-12"><button type="submit" [disabled]="addGameForm.invalid" class="btn btn-primary w-100 py-2 fw-bold">Cadastrar Jogo</button></div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="fs-5 fw-bold mb-0">Jogos Cadastrados ({{ filteredGames.length }})</h3>
+        <input type="text" class="form-control" style="max-width: 300px;" placeholder="Digite o nome do item" [(ngModel)]="gamesSearchTerm" />
+      </div>
+      <div *ngIf="filteredGames.length === 0" class="text-center text-muted p-3">Nenhum jogo cadastrado.</div>
+      <div class="list-group">
+        <div *ngFor="let game of paginatedGames" class="list-group-item bg-light mb-2 rounded d-flex justify-content-between align-items-center">
+          <div>
+            <p class="mb-1 fw-bold">{{ game.name }}</p>
+            <small class="text-muted">Preço: R$ {{ game.price }} | Console: {{ game.console }}</small>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openEditModal('game', game)">
+              <i class="fas fa-edit me-1"></i>Editar
+            </button>
+            <button type="button" class="btn btn-sm btn-danger" (click)="onDeleteGame(game.id)">Deletar</button>
+          </div>
+        </div>
+      </div>
+      <div class="d-flex justify-content-center align-items-center gap-2 mt-3" *ngIf="filteredGames.length > itemsPerPage">
+        <button class="btn btn-sm btn-outline-primary" (click)="gamesPrevPage()" [disabled]="gamesPage === 1">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <span class="text-muted">Página {{ gamesPage }} de {{ gamesTotalPages }}</span>
+        <button class="btn btn-sm btn-outline-primary" (click)="gamesNextPage()" [disabled]="gamesPage === gamesTotalPages">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-4">
+      <h2 class="fs-4 fw-bold mb-3">Cadastrar Novo Acessório</h2>
+      <form [formGroup]="addAccessoryForm" (ngSubmit)="onAddAccessory()">
+        <div class="row g-3">
+          <div class="col-md-6"><label class="form-label fw-medium">Nome do Acessório</label><input type="text" formControlName="name" class="form-control"></div>
+          <div class="col-md-6"><label class="form-label fw-medium">Preço (R$)</label><input type="number" formControlName="price" class="form-control"></div>
+          <div class="col-md-6">
+            <label class="form-label fw-medium">Console</label>
+            <select formControlName="console" class="form-control">
+              <option value="all">Todos os Consoles</option>
+              <option *ngFor="let console of consoles" [value]="console.name">{{ console.name }}</option>
+            </select>
+          </div>
+          <div class="col-md-6"><label class="form-label fw-medium">Imagem (URL)</label><input type="url" formControlName="image" class="form-control"></div>
+          <div class="col-12"><button type="submit" [disabled]="addAccessoryForm.invalid" class="btn btn-success w-100 py-2 fw-bold">Cadastrar Acessório</button></div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="fs-5 fw-bold mb-0">Acessórios Cadastrados ({{ filteredAccessories.length }})</h3>
+        <input type="text" class="form-control" style="max-width: 300px;" placeholder="Digite o nome do item" [(ngModel)]="accessoriesSearchTerm" />
+      </div>
+      <div *ngIf="filteredAccessories.length === 0" class="text-center text-muted p-3">Nenhum acessório cadastrado.</div>
+      <div class="list-group">
+        <div *ngFor="let accessory of paginatedAccessories" class="list-group-item bg-light mb-2 rounded d-flex justify-content-between align-items-center">
+          <div>
+            <p class="mb-1 fw-bold">{{ accessory.name }}</p>
+            <small class="text-muted">Preço: R$ {{ accessory.price }} | Console: {{ getConsoleName(accessory.console) }}</small>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openEditModal('accessory', accessory)">
+              <i class="fas fa-edit me-1"></i>Editar
+            </button>
+            <button type="button" class="btn btn-sm btn-danger" (click)="onDeleteAccessory(accessory.id)">Deletar</button>
+          </div>
+        </div>
+      </div>
+      <div class="d-flex justify-content-center align-items-center gap-2 mt-3" *ngIf="filteredAccessories.length > itemsPerPage">
+        <button class="btn btn-sm btn-outline-primary" (click)="accessoriesPrevPage()" [disabled]="accessoriesPage === 1">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <span class="text-muted">Página {{ accessoriesPage }} de {{ accessoriesTotalPages }}</span>
+        <button class="btn btn-sm btn-outline-primary" (click)="accessoriesNextPage()" [disabled]="accessoriesPage === accessoriesTotalPages">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-4">
+      <h2 class="fs-4 fw-bold mb-3">Cadastrar Novo Console</h2>
+      <form [formGroup]="addConsoleForm" (ngSubmit)="onAddConsole()">
+        <div class="row g-3">
+          <div class="col-md-6"><label class="form-label fw-medium">Nome do Console</label><input type="text" formControlName="name" class="form-control"></div>
+          <div class="col-md-6"><label class="form-label fw-medium">Preço (R$)</label><input type="number" formControlName="price" class="form-control"></div>
+          <div class="col-12"><label class="form-label fw-medium">Imagem (URL)</label><input type="url" formControlName="image" class="form-control"></div>
+          <div class="col-12"><button type="submit" [disabled]="addConsoleForm.invalid" class="btn btn-info w-100 py-2 fw-bold">Cadastrar Console</button></div>
+        </div>
+      </form>
+      <div class="mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3 class="fs-5 fw-bold mb-0">Consoles Cadastrados ({{ filteredConsoles.length }})</h3>
+          <input type="text" class="form-control" style="max-width: 300px;" placeholder="Digite o nome do item" [(ngModel)]="consolesSearchTerm" />
+        </div>
+        <div *ngIf="filteredConsoles.length === 0" class="text-center text-muted p-2">Nenhum console cadastrado.</div>
+        <div class="list-group mt-2">
+          <div *ngFor="let console of paginatedConsoles" class="list-group-item bg-light mb-2 rounded d-flex justify-content-between align-items-center">
+            <div>
+              <p class="mb-1 fw-bold">{{ console.name }}</p>
+              <small class="text-muted">Preço: R$ {{ console.price }}</small>
+            </div>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openEditModal('console', console)">
+                <i class="fas fa-edit me-1"></i>Editar
+              </button>
+              <button type="button" class="btn btn-sm btn-danger" (click)="onDeleteConsole(console.id)">Deletar</button>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-center align-items-center gap-2 mt-3" *ngIf="filteredConsoles.length > itemsPerPage">
+          <button class="btn btn-sm btn-outline-primary" (click)="consolesPrevPage()" [disabled]="consolesPage === 1">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <span class="text-muted">Página {{ consolesPage }} de {{ consolesTotalPages }}</span>
+          <button class="btn btn-sm btn-outline-primary" (click)="consolesNextPage()" [disabled]="consolesPage === consolesTotalPages">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-4">
+      <h2 class="fs-4 fw-bold mb-3">Clientes Cadastrados ({{ clients.length }})</h2>
+      <div class="list-group">
+        <div *ngIf="clients.length === 0" class="text-center text-muted p-4">Nenhum cliente registrado.</div>
+        <div class="list-group-item bg-light mb-2 rounded d-flex justify-content-between align-items-center" *ngFor="let client of clients">
+          <div>
+            <p class="mb-1 fw-bold">{{ client.name }}</p>
+            <small class="text-muted">{{ client.email }} | {{ client.phone }} | CPF: {{ client.cpf }}</small>
+          </div>
+          <div class="text-end">
+            <button type="button" class="btn btn-sm btn-danger" (click)="onDeleteClient(client.id)">Deletar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h2 class="fs-4 fw-bold mb-0">Aluguéis Registrados ({{ displayedCount }} / {{ rentals.length }})</h2>
+        <div class="d-flex gap-2 align-items-end flex-wrap filters-bar">
+          <div class="filter-item">
+            <label class="form-label fw-medium small mb-1">Filtrar por Cliente</label>
+            <select class="form-control" [(ngModel)]="selectedClientCpf" (ngModelChange)="onFiltersChange()">
+              <option value="all">Todos os Clientes</option>
+              <option *ngFor="let c of clients" [value]="c.cpf">{{ c.name }}</option>
+            </select>
+          </div>
+          <div class="filter-item">
+            <label class="form-label fw-medium small mb-1">Filtrar por Console</label>
+            <select class="form-control" [(ngModel)]="selectedConsoleId" (ngModelChange)="onFiltersChange()">
+              <option value="all">Todos os Consoles</option>
+              <option *ngFor="let console of consoles" [value]="console.id">{{ console.name }}</option>
+            </select>
+          </div>
+          <div class="filter-item">
+            <label class="form-label fw-medium small mb-1">Data inicial</label>
+            <input type="date" class="form-control" [(ngModel)]="dateFrom" (ngModelChange)="onFiltersChange()">
+          </div>
+          <div class="filter-item">
+            <label class="form-label fw-medium small mb-1">Data final</label>
+            <input type="date" class="form-control" [(ngModel)]="dateTo" (ngModelChange)="onFiltersChange()">
+          </div>
+          <div class="pb-1">
+            <button class="btn btn-outline-secondary" type="button" (click)="clearFilters()">Limpar</button>
+          </div>
+          <div class="pb-1">
+            <button class="btn btn-success" type="button" (click)="exportToCsv()" [disabled]="displayedCount === 0">
+              Exportar CSV
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="list-group">
+        <div *ngIf="rentals.length === 0" class="text-center text-muted p-4">Nenhum aluguel registrado.</div>
+        <div class="list-group-item bg-light mb-3 rounded p-4 rental-card" *ngFor="let rental of paginatedRentals">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <p class="mb-0"><span class="text-muted">Cliente:</span> <span class="fw-bold">{{ rental.client.name }}</span></p>
+            <small class="text-muted">Pedido em: {{ rental.orderDate | date: 'dd/MM/yyyy HH:mm' }}</small>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-3">
+              <p class="text-muted small mb-1">Console</p>
+              <p class="fw-bold">{{ getConsoleName(rental.consoleId) }}</p>
+            </div>
+            <div class="col-md-3">
+              <p class="text-muted small mb-1">Plano</p>
+              <p class="fw-bold">{{ rental.plan }}</p>
+            </div>
+            <div class="col-md-3">
+              <p class="text-muted small mb-1">Data e Hora</p>
+              <p class="fw-bold">{{ rental.orderDate | date: 'dd/MM/yyyy HH:mm' }}</p>
+            </div>
+            <div class="col-md-3">
+              <p class="text-muted small mb-1">Total</p>
+              <p class="fw-bold text-success">{{ rental.totalPrice | currency:'BRL' }}</p>
+            </div>
+          </div>
+
+          <div class="row mb-2">
+            <div class="col-md-8">
+              <p class="text-muted small mb-1">Extensões (valor)</p>
+              <div class="d-flex align-items-center gap-3 flex-wrap">
+                <p class="fw-bold mb-0" [ngClass]="rental.pendingExtensionAmount ? 'text-danger' : 'text-success'">
+                  {{ (rental.pendingExtensionAmount || 0) | currency:'BRL' }}
+                </p>
+                <small class="mb-0" [ngClass]="rental.pendingExtensionStatus === 'pendente' ? 'text-danger' : 'text-success'">
+                  {{ rental.pendingExtensionStatus === 'pendente' ? 'pendente' : 'pago' }}
+                </small>
+                <button class="btn btn-sm btn-success ms-2" type="button"
+                        (click)="confirmExtensions(rental)"
+                        [disabled]="!rental.pendingExtensionAmount || rental.pendingExtensionAmount === 0">
+                  Confirmar Pagamento
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mb-2">
+            <div class="col-md-3">
+              <p class="text-muted small mb-1">Expiração</p>
+              <p class="small" *ngIf="rental.endDate">{{ rental.endDate | date:'dd/MM/yyyy HH:mm' }}</p>
+              <p class="small" *ngIf="!rental.endDate">—</p>
+            </div>
+            <div class="col-md-3">
+              <p class="text-muted small mb-1">Tempo Restante</p>
+              <ng-container *ngIf="!remainingParts(rental).expired; else admExpiredTpl">
+                <div class="time-indicator" [ngClass]="remainingParts(rental).critical ? 'time-critical' : 'time-normal'">
+                  <span>{{ remainingParts(rental).years }} anos</span>
+                  <span class="mx-1">•</span>
+                  <span>{{ remainingParts(rental).months }} meses</span>
+                  <span class="mx-1">•</span>
+                  <span>{{ remainingParts(rental).days }} dias</span>
+                </div>
+              </ng-container>
+              <ng-template #admExpiredTpl>
+                <div class="time-indicator time-critical">{{ remainingLabel(rental) }}</div>
+              </ng-template>
+            </div>
+            <!-- Admin não pode estender o plano -->
+          </div>
+
+          <hr class="my-3">
+
+          <div class="row">
+            <div class="col-md-4">
+              <p class="text-muted small mb-1">Jogos</p>
+              <p class="small">{{ getGameNames(rental.gameIds) }}</p>
+            </div>
+            <div class="col-md-4">
+              <p class="text-muted small mb-1">Acessórios</p>
+              <p class="small">{{ getAccessoryNames(rental.accessoryIds) }}</p>
+            </div>
+            <div class="col-md-4">
+              <p class="text-muted small mb-1">Opção de Compra</p>
+              <p class="small">{{ rental.purchaseOption ? 'Sim' : 'Não' }}</p>
+            </div>
+          </div>
+
+          <div class="row mt-3" *ngIf="rental.client.addresses && rental.client.addresses.length">
+            <div class="col-12">
+              <p class="text-muted small mb-1">Endereço do Cliente</p>
+              <div class="small" *ngFor="let a of rental.client.addresses">
+                <span class="fw-medium">{{ a.type }}:</span>
+                {{ a.address }}, {{ a.number }} — {{ a.district }} — {{ a.city }} / {{ a.uf }} — CEP {{ a.cep }}
+                <span *ngIf="a.reference">(Ref.: {{ a.reference }})</span>
+                <span *ngIf="a.default" class="badge text-bg-success ms-2">Padrão</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mt-3" *ngIf="displayedCount > rentalPageSize">
+        <small class="text-muted">Página {{ currentPage }} de {{ totalPages }}</small>
+        <nav>
+          <ul class="pagination mb-0">
+            <li class="page-item" [class.disabled]="currentPage === 1"><button class="page-link" (click)="prevPage()" type="button">Anterior</button></li>
+            <li class="page-item" *ngFor="let p of [].constructor(totalPages); let i = index" [class.active]="currentPage === (i+1)">
+              <button class="page-link" type="button" (click)="goToPage(i+1)">{{ i+1 }}</button>
+            </li>
+            <li class="page-item" [class.disabled]="currentPage === totalPages"><button class="page-link" (click)="nextPage()" type="button">Próxima</button></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Edição -->
+<div *ngIf="showEditModal" class="modal-overlay" (click)="closeEditModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title">
+        Editar {{ editingItemType === 'game' ? 'Jogo' : editingItemType === 'accessory' ? 'Acessório' : 'Console' }}
+      </h3>
+      <button type="button" class="btn-close" (click)="closeEditModal()">&times;</button>
+    </div>
+    
+    <div class="modal-body">
+      <form [formGroup]="editForm">
+        <div class="mb-3">
+          <label class="form-label fw-medium">Nome</label>
+          <input type="text" formControlName="name" class="form-control">
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label fw-medium">Preço (R$)</label>
+          <input type="number" formControlName="price" class="form-control">
+        </div>
+        
+        <div class="mb-3" *ngIf="editingItemType !== 'console'">
+          <label class="form-label fw-medium">Console</label>
+          <select formControlName="console" class="form-control">
+            <option value="all">Todos os Consoles</option>
+            <option *ngFor="let console of consoles" [value]="console.name">{{ console.name }}</option>
+          </select>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label fw-medium">URL da Imagem</label>
+          <input type="url" formControlName="image" class="form-control">
+        </div>
+      </form>
+    </div>
+    
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="closeEditModal()">Cancelar</button>
+      <button type="button" class="btn btn-primary" (click)="saveEdit()" [disabled]="editForm.invalid">
+        <i class="fas fa-save me-2"></i>Salvar Alterações
+      </button>
+    </div>
+  </div>
+</div>

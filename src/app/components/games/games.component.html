@@ -1,0 +1,36 @@
+<video autoplay muted loop playsinline style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2;">
+  <source src="assets/background/Definitivo.mp4" type="video/mp4">
+</video>
+<div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: -1;"></div>
+
+<div class="container mx-auto px-4 py-8">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
+    <h1 class="text-3xl font-bold text-white" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">
+      <span *ngIf="!selectedConsoleName">Jogos Disponíveis</span>
+      <span *ngIf="selectedConsoleName">Jogos Disponíveis para {{ selectedConsoleName }}</span>
+    </h1>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div *ngFor="let game of filteredGames"
+         class="card-item bg-white rounded-xl shadow-md overflow-hidden transition-transform duration-300 hover:transform hover:-translate-y-1 flex flex-col border-4 border-gray-300"
+         [ngClass]="{ 'neon-border-selected': isSelected(game.id) }">
+      <div class="relative h-[350px] bg-gray-100 flex items-center justify-center p-2">
+        <img [src]="game.image" [alt]="game.name" class="max-w-full max-h-full object-contain">
+      </div>
+      <div class="p-6 text-center flex flex-col justify-between flex-1">
+        <h3 class="text-xl font-bold mb-2 two-line-title">{{ game.name }}</h3>
+        <div class="flex flex-col justify-end space-y-3 mt-auto">
+          <span class="font-bold text-blue-700">R$ {{ game.price }}</span>
+          <button (click)="toggleSelect(game)"
+                  class="px-3 py-2 rounded font-semibold"
+                  [ngClass]="isSelected(game.id) ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-800 hover:bg-blue-200'">
+            {{ isSelected(game.id) ? 'Selecionado' : 'Selecionar' }}
+          </button>
+          <a (click)="goToRent()"
+             class="text-blue-600 hover:text-blue-800 font-medium cursor-pointer text-center">Ir para Aluguel</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,198 @@
+/* Espaço à direita para o botão do olho */
+.input-has-toggle {
+	padding-right: 2.6rem !important;
+}
+
+/* Versão com espaço extra (ex.: junto com ícone de erro) */
+.input-has-toggle-2 {
+	padding-right: 3.6rem !important;
+}
+
+/* Botão de mostrar/ocultar dentro do input */
+.password-toggle {
+	position: absolute;
+	right: 6px;
+	top: 50%;
+	transform: translateY(-50%);
+	height: 2.25rem; /* altura padrão do .form-control */
+	width: 2.25rem;
+	border: none;
+	background: transparent;
+	color: #6c757d; /* cinza bootstrap */
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 0.375rem;
+	cursor: pointer;
+}
+
+/* Garantir que o wrapper referencie a altura do input */
+.password-field {
+	position: relative;
+}
+
+/* Ícone de erro com balão */
+.error-icon-wrapper {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	color: #dc3545; /* vermelho de erro */
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.error-icon-wrapper i {
+	background: #fff;
+	border: 1px solid rgba(0,0,0,0.15);
+	width: 28px;
+	height: 28px;
+	border-radius: 9999px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.error-tooltip {
+	position: absolute;
+	bottom: 100%;
+	right: 0;
+	transform: translateY(-6px);
+	background: #dc3545;
+	color: #fff;
+	font-size: 0.75rem;
+	line-height: 1rem;
+	padding: 6px 10px;
+	border-radius: 6px;
+	white-space: nowrap;
+	box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity .15s ease, visibility .15s ease, transform .15s ease;
+	z-index: 20;
+}
+
+.error-tooltip::after {
+	content: '';
+	position: absolute;
+	top: 100%;
+	right: 10px;
+	border-width: 6px;
+	border-style: solid;
+	border-color: #dc3545 transparent transparent transparent;
+}
+
+.error-icon-wrapper:hover .error-tooltip,
+.error-icon-wrapper:focus-within .error-tooltip {
+	opacity: 1;
+	visibility: visible;
+	transform: translateY(-8px);
+}
+
+.password-toggle:hover {
+	background: rgba(0,0,0,0.05);
+	color: #495057;
+}
+
+.password-toggle:focus-visible {
+	outline: 2px solid #86b7fe;
+	outline-offset: 2px;
+}
+
+/* Glass/blur nas caixas de login/cadastro */
+.card.login-blur {
+	/* Vidro escuro (base gray-900: #111827) */
+	background: rgba(17, 24, 39, 0.55) !important;
+	backdrop-filter: blur(1px);
+	-webkit-backdrop-filter: blur(1px);
+	border: 1px solid rgba(255, 255, 255, 0.12) !important;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+	color: #fff;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8), 0 0 3px rgba(0, 0, 0, 0.6);
+}
+
+/* Manter inputs legíveis (texto escuro, sem contorno) */
+.card.login-blur .form-control {
+	background: rgba(255, 255, 255, 0.95);
+	color: #111;
+	text-shadow: none;
+	border-color: rgba(0, 0, 0, 0.2);
+}
+.card.login-blur .form-control::placeholder {
+	color: #6b7280; /* cinza médio */
+	opacity: 1; /* para Safari */
+}
+
+/* Links e textos auxiliares mais visíveis sobre o vidro */
+.card.login-blur .text-muted { color: rgba(255, 255, 255, 0.9) !important; }
+.card.login-blur .btn-link { color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+
+/* Alertas com contraste adequado no vidro */
+.card.login-blur .alert {
+	color: #fff;
+	border: none;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
+}
+.card.login-blur .alert-danger {
+	background: rgba(220, 53, 69, 0.95);
+}
+.card.login-blur .alert-success {
+	background: rgba(25, 135, 84, 0.95);
+}
+
+/* Aviso de redirecionamento sem cor de fundo (transparente) para teste */
+.card.login-blur .redirect-alert {
+	background: transparent !important;
+	color: #fff !important;
+	border: none !important;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
+	box-shadow: none !important;
+}
+
+/* Roxo quase neon para ícones */
+.neon-purple {
+	color: #bb29ff !important;
+	text-shadow: 0 0 6px rgba(187, 41, 255, 0.6), 0 0 14px rgba(187, 41, 255, 0.4);
+}
+
+/* Botão roxo quase neon para Cadastrar */
+.btn-neon-purple {
+	--neon-base: #8b5cf6; /* roxo vibrante */
+	--neon-hover: #7c3aed;
+	background-color: var(--neon-base) !important;
+	border-color: var(--neon-base) !important;
+	color: #fff !important;
+	box-shadow: 0 0 10px rgba(139, 92, 246, 0.6), 0 0 22px rgba(139, 92, 246, 0.35);
+}
+.btn-neon-purple:hover,
+.btn-neon-purple:focus {
+	background-color: var(--neon-hover) !important;
+	border-color: var(--neon-hover) !important;
+	box-shadow: 0 0 12px rgba(124, 58, 237, 0.75), 0 0 28px rgba(124, 58, 237, 0.45);
+}
+
+/* Melhorar visualização dos endereços salvos */
+.card.login-blur .list-group-item {
+	background: rgba(255, 255, 255, 0.95) !important;
+	border-color: rgba(0, 0, 0, 0.15) !important;
+	color: #111 !important;
+	text-shadow: none !important;
+	margin-bottom: 0.75rem;
+}
+
+.card.login-blur .list-group-item .fw-medium,
+.card.login-blur .list-group-item .fw-bold {
+	color: #111 !important;
+	text-shadow: none !important;
+}
+
+.card.login-blur .list-group-item .text-muted {
+	color: #6c757d !important;
+	text-shadow: none !important;
+}
+
+.card.login-blur .list-group-item .badge {
+	background-color: rgba(25, 135, 84, 0.2) !important;
+	color: #198754 !important;
+	text-shadow: none !important;
+}
